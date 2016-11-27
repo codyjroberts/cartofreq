@@ -1,0 +1,15 @@
+body { padding: 0; margin: 0; }
+html, body, #map { height: 100vh; width: 100vw; }
+#map { z-index: 0; }
+.sensor-marker { opacity: 0.65; stroke: black; stroke-width: 1px; }
+.leaflet-control-zoom > a { font-size: 2px; }
+.leaflet-control-attribution { z-index: -10 !important; font-size: 7px !important; background: rgba(255, 255, 255, 0) !important; }
+
+.demo-card-wide.mdl-card {
+  width: calc(100% - 20px);
+  padding: 0;
+}
+
+.demo-card-wide > .mdl-card__menu {
+  color: #fff;
+}
