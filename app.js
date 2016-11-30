@@ -14,6 +14,8 @@ function initMap() {
     color          = d3.scaleOrdinal().range(["#FF2D00","#2E0927", "#FF8C00", "#04756F", "#D90000"]),
     colorSignal    = d3.scaleLinear().domain([0, 100]).range(["#F00","#0F0"]),
     maxDbm         = 115,
+    cornerRadius   = 5,
+    padAngle       = .15,
     formatNumber   = d3.format(",d"),
     partition      = d3.partition(),
     websocketURI   = 'ws://localhost:8080',
@@ -22,6 +24,7 @@ function initMap() {
     panOffset      = 0.0005,
     historyMarkers = [],
     sensorNames    = [],
+    paused         = false,
     markerSvg      = d3.select("#sensor")
                        .attr("width", markerWidth)
                        .attr("height", markerHeight)
@@ -40,8 +43,8 @@ function initMap() {
       .endAngle(    (d, i) => { return (2 * Math.PI / signalsTracked) * i + (2 * Math.PI / signalsTracked); })
       .innerRadius(      d => { return sensorNames.includes(d.data.name) ? 0 : innerRadius; })
       .outerRadius(      d => { return sensorNames.includes(d.data.name) ? 0 : outerRadius(d); })
-      .cornerRadius(5)
-      .padAngle(.35);
+      .cornerRadius(cornerRadius)
+      .padAngle(padAngle);
   }
 
   function addCircleMarker(coords, signalStrength) {
@@ -150,13 +153,40 @@ function initMap() {
     }
   });
 
+  let pauseButton = L.Control.extend({
+    options: {
+      position: 'topleft'
+    },
+
+    onAdd: function (map) {
+      let container = L.DomUtil.get('pause');
+
+      container.style.width = '30px';
+      container.style.height = '30px';
+
+      L.DomEvent.addListener(container, 'click', e => {
+        if (paused) {
+          paused = false;
+          container.innerHTML = "<i class='material-icons'>pause</i>"
+        } else {
+          paused = true;
+          container.innerHTML = "<i class='material-icons'>play_arrow</i>"
+        }
+      });
+
+      return container;
+    }
+  });
+
   let cIcon = new configIcon();
   let cBox = new configBox();
   let streamOverlay = new streamGraph();
+  let cPause = new pauseButton();
 
   smap.addControl(cIcon);
   smap.addControl(cBox);
   smap.addControl(streamOverlay);
+  smap.addControl(cPause);
 
   // Set TileLayer to B/W
   L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
@@ -168,7 +198,7 @@ function initMap() {
 
   //TODO: Fix keys
   let stack = d3.stack()
-    .keys(["RF2449.188MHZ","RF2401.938MHZ","RF101.719MHZ","RF105MHZ","RF93.625MHZ"])
+    .keys(["RF2449.188MHZ","RF101.719MHZ","RF2401.938MHZ","RF105MHZ","RF93.625MHZ"])
     .order(d3.stackOrderNone)
     .offset(d3.stackOffsetNone);
 
@@ -177,8 +207,9 @@ function initMap() {
 
   let width = 1650,
     height = 150,
-    yScale = 2500,		// available for easy adjusting
+    yScale = 500,		// available for easy adjusting
     history = 10;		// number of entries in graph at once
+
   // (if adjusting, also need to change d3.area)
   let xStream = d3.scaleLinear()
     .domain([0, (history - 1)])
@@ -190,9 +221,9 @@ function initMap() {
 
   let area = d3.area()
     .curve(d3.curveCatmullRom.alpha(0.5))
-    .x(function(d, i) { return (i*(window.innerWidth + 150) / 10); })	 // TODO: Fix width, 10 entries (history not accessible here)
-    .y0(function(d) { return yStream(yScale/2 - d[1]); })
-    .y1(function(d) { return yStream(yScale/2 + d[1]); });
+    .x((d, i) => { return (i*(window.innerWidth + 150) / history); })	 // TODO: Fix width, 10 entries (history not accessible here)
+    .y0((d) => { return yStream(yScale - d[1]); })
+    .y1((d) => { return yStream(yScale); });
 
   let svg = d3.select("#stream").append("svg").attr("width", "100vw").attr("height", height);
 
@@ -222,7 +253,7 @@ function initMap() {
 
     svg.selectAll("path")
       .data(newSeries)
-      .transition().attr("d", area).duration(250)
+      .transition().attr("d", area).duration(100)
       .style("fill", d => { return color(d.key); });
   }
 
@@ -230,7 +261,7 @@ function initMap() {
   //   Events   //
   ////////////////
   socket.on('t', data => {
-    if (data != null) {
+    if (data != null && !paused) {
       updateMarker(data);
       updateStreamGraph(data.children);
     }

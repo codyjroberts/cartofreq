@@ -50,10 +50,3 @@ html, body, #map {
 #stream > svg {
   width: 100vw;
 }
-
-@media screen and (min-width: 480px) {
-  #stream > svg {
-    width: 50vw;
-    margin-left: 25vw;
-  }
-}

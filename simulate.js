@@ -28,6 +28,6 @@ io.on('connection', function (socket) {
     if (it.next().done)
       it = makeIterator(parsedData);
     socket.emit('t', it.next().value);
-    setTimeout(p, 500);
+    setTimeout(p, 100);
   }
 });
