@@ -71,7 +71,7 @@ function initMap() {
     smap.panTo([parseFloat(data.lat) - panOffset, parseFloat(data.lng)]);
 
     // Parse data in heirarchy structure for d3 sunburst
-    root = d3.hierarchy(data);
+    let root = d3.hierarchy(data);
     root.sum(d => { return d.size; });
 
     // JOIN new data with old

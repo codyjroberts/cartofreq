@@ -1,3 +1,5 @@
+echo "Transpiling via babel"
+npm run build
 echo "Launching node server on ws://localhost:8080"
 node simulate.js&
 SIMULATE_PID=$!
