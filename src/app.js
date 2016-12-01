@@ -114,7 +114,7 @@ function initMap() {
     mark.bindTooltip(tooltip).openTooltip();
     historyMarkers.push(mark);
     mark.addTo(smap);
-    if (historyMarkers.length > 20) {
+    if (historyMarkers.length > 30) {
       let oldMark = historyMarkers.shift();
       smap.removeLayer(oldMark);
     }
@@ -130,7 +130,6 @@ function initMap() {
   /////////////////////
 
   let queue     = [],
-    width       = 1650,
     height      = 150,
     yScale      = 500,
     history     = 20,
