@@ -191,14 +191,15 @@ function initMap() {
       let container = L.DomUtil.get("config");
 
       function onClick(e) {
-        let h = document.getElementById('settings');
-        let s = document.getElementById('stream');
-        if (h.style.display === 'none') {
-          h.style.display = 'block';
-          s.style.display = 'none';
+        let settings = document.getElementById('settings');
+        let stream = document.getElementById('stream');
+
+        if (settings.style.display === 'none') {
+          settings.style.display = 'block';
+          stream.style.display = 'none';
         } else {
-          h.style.display = 'none';
-          s.style.display = 'block';
+          settings.style.display = 'none';
+          stream.style.display = 'block';
         }
       }
 
@@ -215,6 +216,7 @@ function initMap() {
 
     onAdd: function (map) {
       let container = L.DomUtil.get("settings");
+      container.style.display = 'none';
       return container;
     }
   });
