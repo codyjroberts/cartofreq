@@ -125,15 +125,15 @@ function initMap() {
     width       = 1650,
     height      = 150,
     yScale      = 500,
-    history     = 10,
+    history     = 20,
+    xStream     = d3.scaleLinear().domain([0, (history - 1)]).range([0, window.innerWidth]),
+    yStream     = d3.scaleLinear().domain([0, yScale]).range([0, height]),
+    streamGraph = d3.select("#stream").append("svg"),
     area        = d3.area()
                        .curve(d3.curveCatmullRom.alpha(0.5))
-                       .x((d, i) => { return (i*(window.innerWidth + 178) / history); })
+                       .x((d, i) => { return xStream(i); })
                        .y0((d) => { return yStream(yScale - d[1]); })
-                       .y1((d) => { return yStream(yScale); }),
-    streamGraph = d3.select("#stream").append("svg"),
-    xStream     = d3.scaleLinear().domain([0, (history - 1)]).range([0, width]),
-    yStream     = d3.scaleLinear().domain([0, yScale]).range([0, height]);
+                       .y1((d) => { return yStream(yScale); });
 
   function updateStreamGraph(data) {
     let keys = data.map(i => { return i.name });
@@ -143,7 +143,7 @@ function initMap() {
       return acc;
     }, {});
 
-    if (queue.length < 10) {
+    if (queue.length < history) {
       queue.push(data);
       return;
     } else {
