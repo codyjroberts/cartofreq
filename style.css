@@ -50,3 +50,12 @@ html, body, #map {
 #stream > svg {
   width: 100vw;
 }
+
+#config, #pause, #locked {
+  background: white;
+  border: 2px solid rgba(0,0,0,0.2);
+}
+
+#config:hover, #pause:hover, #locked:hover{
+  background: #f4f4f4;
+}

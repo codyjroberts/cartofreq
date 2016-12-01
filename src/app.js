@@ -1,7 +1,7 @@
 initMap();
 
 function initMap() {
-  let smap         = L.map('map').setView([42.009105, -87.667902], 18),
+  let smap         = L.map('map').setView([41.8781, -87.6298], 15),
     markerWidth    = 250,
     markerHeight   = 250,
     chicagoCoords  = [42, -87],
@@ -25,6 +25,7 @@ function initMap() {
     historyMarkers = [],
     sensorNames    = [],
     paused         = false,
+    locked         = false,
     markerSvg      = d3.select("#sensor")
                        .attr("width", markerWidth)
                        .attr("height", markerHeight)
@@ -66,9 +67,11 @@ function initMap() {
     // Set # tracked signals
     signalsTracked = data.children.length;
 
-    // Pan map (for offset) & move marker
+    // move marker
     marker.setLatLng([parseFloat(data.lat), parseFloat(data.lng)]);
-    smap.panTo([parseFloat(data.lat) - panOffset, parseFloat(data.lng)]);
+
+    // pan map unless unlocked
+    if (locked) smap.panTo([parseFloat(data.lat) - panOffset, parseFloat(data.lng)]);
 
     // Parse data in heirarchy structure for d3 sunburst
     let root = d3.hierarchy(data);
@@ -109,7 +112,76 @@ function initMap() {
     }
   }
 
-  // Configuration
+  L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+    maxZoom: maxZoomLevel,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(smap);
+
+  /////////////////////
+  //   StreamGraph   //
+  /////////////////////
+
+  let queue     = [],
+    width       = 1650,
+    height      = 150,
+    yScale      = 500,
+    history     = 10,
+    area        = d3.area()
+                       .curve(d3.curveCatmullRom.alpha(0.5))
+                       .x((d, i) => { return (i*(window.innerWidth + 178) / history); })
+                       .y0((d) => { return yStream(yScale - d[1]); })
+                       .y1((d) => { return yStream(yScale); }),
+    streamGraph = d3.select("#stream").append("svg"),
+    xStream     = d3.scaleLinear().domain([0, (history - 1)]).range([0, width]),
+    yStream     = d3.scaleLinear().domain([0, yScale]).range([0, height]);
+
+  function updateStreamGraph(data) {
+    let keys = data.map(i => { return i.name });
+
+    data = data.reduce((acc, x) => {
+      acc[x.name] = Math.floor(Math.min(Math.max(2 * (parseFloat(x.size) + 115), 0), 100));
+      return acc;
+    }, {});
+
+    if (queue.length < 10) {
+      queue.push(data);
+      return;
+    } else {
+      queue.shift();
+      queue.push(data);
+    }
+
+    let stack = d3.stack()
+      .keys(keys)
+      .order(d3.stackOrderNone)
+      .offset(d3.stackOffsetNone);
+
+    let newSeries = stack(queue).reverse();
+
+    streamGraph.selectAll("path")
+      .data(newSeries)
+      .enter().append("path")
+      .attr("d", area);
+
+    streamGraph.selectAll("path")
+      .data(newSeries)
+      .transition().attr("d", area).duration(100)
+      .style("fill", d => { return color(d.key); });
+  }
+
+  ////////////////
+  //   Events   //
+  ////////////////
+  socket.on('t', data => {
+    if (data != null && !paused) {
+      updateMarker(data);
+      updateStreamGraph(data.children);
+    }
+  });
+
+  ////////////////////
+  //   Map Config   //
+  ////////////////////
   let configIcon = L.Control.extend({
     options: {
       position: 'topright'
@@ -183,81 +255,43 @@ function initMap() {
     }
   });
 
+  let lockButton = L.Control.extend({
+    options: {
+      position: 'topleft'
+    },
+
+    onAdd: function (map) {
+      let container = L.DomUtil.get('locked');
+
+      container.style.width = '30px';
+      container.style.height = '30px';
+
+      L.DomEvent.addListener(container, 'click', e => {
+        if (locked) {
+          locked = false;
+          container.innerHTML = "<i class='material-icons'>lock_outline</i>"
+        } else {
+          locked = true;
+          container.innerHTML = "<i class='material-icons'>lock_open</i>"
+        }
+      });
+
+      return container;
+    }
+  });
+
+
   let cIcon = new configIcon();
   let cBox = new configBox();
-  let streamOverlay = new streamGraphControl();
+  let cStream = new streamGraphControl();
   let cPause = new pauseButton();
+  let cLock = new lockButton();
 
   smap.addControl(cIcon);
   smap.addControl(cBox);
-  smap.addControl(streamOverlay);
+  smap.addControl(cStream);
   smap.addControl(cPause);
+  smap.addControl(cLock);
 
   // Set TileLayer to B/W
-  L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
-    maxZoom: maxZoomLevel,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-  }).addTo(smap);
-
-  /////////////////////
-  //   StreamGraph   //
-  /////////////////////
-
-  let queue     = [],
-    width       = 1650,
-    height      = 150,
-    yScale      = 500,
-    history     = 10,
-    area        = d3.area()
-                       .curve(d3.curveCatmullRom.alpha(0.5))
-                       .x((d, i) => { return (i*(window.innerWidth + 178) / history); })
-                       .y0((d) => { return yStream(yScale - d[1]); })
-                       .y1((d) => { return yStream(yScale); }),
-    streamGraph = d3.select("#stream").append("svg"),
-    xStream     = d3.scaleLinear().domain([0, (history - 1)]).range([0, width]),
-    yStream     = d3.scaleLinear().domain([0, yScale]).range([0, height]);
-
-  function updateStreamGraph(data) {
-    let keys = data.map(i => { return i.name });
-
-    data = data.reduce((acc, x) => {
-      acc[x.name] = Math.floor(Math.min(Math.max(2 * (parseFloat(x.size) + 115), 0), 100));
-      return acc;
-    }, {});
-
-    if (queue.length < 10) {
-      queue.push(data);
-      return;
-    } else {
-      queue.shift();
-      queue.push(data);
-    }
-
-    let stack = d3.stack()
-      .keys(keys)
-      .order(d3.stackOrderNone)
-      .offset(d3.stackOffsetNone);
-
-    let newSeries = stack(queue).reverse();
-
-    streamGraph.selectAll("path")
-      .data(newSeries)
-      .enter().append("path")
-      .attr("d", area);
-
-    streamGraph.selectAll("path")
-      .data(newSeries)
-      .transition().attr("d", area).duration(100)
-      .style("fill", d => { return color(d.key); });
-  }
-
-  ////////////////
-  //   Events   //
-  ////////////////
-  socket.on('t', data => {
-    if (data != null && !paused) {
-      updateMarker(data);
-      updateStreamGraph(data.children);
-    }
-  });
 }
