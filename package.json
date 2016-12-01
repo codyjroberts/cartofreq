@@ -4,7 +4,7 @@
   "description": "",
   "main": "simulate.js",
   "scripts": {
-    "start": "bash start.sh",
+    "dev": "bash start.sh",
     "build": "babel src -d lib"
   },
   "author": "Cody Roberts, Brian Hamilton, Mackenzie Carter",
@@ -15,7 +15,8 @@
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
-    "live-server": "^1.1.0",
-    "babel-preset-babili": "0.0.9"
+    "babel-preset-babili": "0.0.9",
+    "babel-preset-es2015": "^6.18.0",
+    "live-server": "^1.1.0"
   }
 }

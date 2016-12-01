@@ -5,5 +5,5 @@ view it at `localhost:8000`.
 
 ```
 npm install
-npm start
+npm run dev
 ```
