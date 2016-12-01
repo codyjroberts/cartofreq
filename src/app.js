@@ -148,6 +148,11 @@ function initMap() {
     .attr("class", "legendOrdinal")
     .attr("transform", "translate(20,20)");
 
+  function resize() {
+    xStream = d3.scaleLinear().domain([0, (history - 1)]).range([0, window.innerWidth]);
+  }
+
+  window.onresize = resize;
 
   function updateStreamGraph(data) {
     let keys = data.map(i => { return i.name });
