@@ -1,7 +1,7 @@
 initMap();
 
 function initMap() {
-  let smap         = L.map('map').setView([41.8781, -87.6298], 15),
+  let smap         = L.map('map').setView([41.8781, -87.6298], 18),
     markerWidth    = 250,
     markerHeight   = 250,
     chicagoCoords  = [42, -87],
@@ -12,7 +12,6 @@ function initMap() {
     x              = d3.scaleLinear().range([0, 2 * Math.PI]),
     y              = d3.scaleSqrt().range([0, radius]),
     color          = d3.scaleOrdinal().range(["#FF2D00","#2E0927", "#FF8C00", "#04756F", "#D90000"]),
-    colorSignal    = d3.scaleLinear().domain([0, 100]).range(["#F00","#0F0"]),
     maxDbm         = 115,
     cornerRadius   = 5,
     padAngle       = .15,
@@ -25,7 +24,7 @@ function initMap() {
     historyMarkers = [],
     sensorNames    = [],
     paused         = false,
-    locked         = false,
+    locked         = true,
     markerSvg      = d3.select("#sensor")
                        .attr("width", markerWidth)
                        .attr("height", markerHeight)
@@ -57,12 +56,7 @@ function initMap() {
     // Add sensor name if new
     if (!sensorNames.includes(data.name)) sensorNames.push(data.name);
 
-    let temp = 0;
-    let signalStrength = data.children.forEach(i => {
-      temp += Math.min(Math.max(2 * (parseFloat(i.size) + maxDbm), 0), 100);
-    });
-    temp = temp / data.children.length;
-    addCircleMarker([parseFloat(data.lat), parseFloat(data.lng)], temp);
+    addCircleMarker(data);
 
     // Set # tracked signals
     signalsTracked = data.children.length;
@@ -94,16 +88,30 @@ function initMap() {
       .text(d => { return d.data.name + "\n" + formatNumber(d.value); });
   }
 
-  function addCircleMarker(coords, signalStrength) {
+  function addCircleMarker(data) {
+    let coords = [parseFloat(data.lat), parseFloat(data.lng)];
+
+    let colorSignal = d3.scaleLinear().domain([0, 100]).range(["#F00","#0F0"]);
+
+    let temp = 0;
+    let signalStrength = data.children.forEach(i => {
+      temp += Math.min(Math.max(2 * (parseFloat(i.size) + maxDbm), 0), 100);
+    });
+
+    temp = temp / data.children.length;
+
     let mark = L.circleMarker(coords, {
         radius: 5,
-        fillColor: colorSignal(signalStrength),
+        fillColor: colorSignal(temp),
         color: "#000",
         weight: 0,
         opacity: 1,
         fillOpacity: 0.5
     });
 
+    let tooltip = data.children.map(i => `${i.name}: ${i.size}`).join('<br>');
+
+    mark.bindTooltip(tooltip).openTooltip();
     historyMarkers.push(mark);
     mark.addTo(smap);
     if (historyMarkers.length > 20) {
