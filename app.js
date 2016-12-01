@@ -31,6 +31,11 @@ function initMap() {
                        .append("g")
                        .attr("transform", "translate(" + markerWidth / 2 + "," + (markerHeight / 2) + ")");
 
+
+  /////////////////////
+  //      Sensor     //
+  /////////////////////
+
   // Defines dynamic arc based on signalsTracked and zoom level
   function arc() {
     let innerRadius = 2,
@@ -45,24 +50,6 @@ function initMap() {
       .outerRadius(      d => { return sensorNames.includes(d.data.name) ? 0 : outerRadius(d); })
       .cornerRadius(cornerRadius)
       .padAngle(padAngle);
-  }
-
-  function addCircleMarker(coords, signalStrength) {
-    let mark = L.circleMarker(coords, {
-        radius: 5,
-        fillColor: colorSignal(signalStrength),
-        color: "#000",
-        weight: 0,
-        opacity: 1,
-        fillOpacity: 0.5
-    });
-
-    historyMarkers.push(mark);
-    mark.addTo(smap);
-    if (historyMarkers.length > 20) {
-      let oldMark = historyMarkers.shift();
-      smap.removeLayer(oldMark);
-    }
   }
 
   function updateMarker(data) {
@@ -104,6 +91,24 @@ function initMap() {
       .text(d => { return d.data.name + "\n" + formatNumber(d.value); });
   }
 
+  function addCircleMarker(coords, signalStrength) {
+    let mark = L.circleMarker(coords, {
+        radius: 5,
+        fillColor: colorSignal(signalStrength),
+        color: "#000",
+        weight: 0,
+        opacity: 1,
+        fillOpacity: 0.5
+    });
+
+    historyMarkers.push(mark);
+    mark.addTo(smap);
+    if (historyMarkers.length > 20) {
+      let oldMark = historyMarkers.shift();
+      smap.removeLayer(oldMark);
+    }
+  }
+
   // Configuration
   let configIcon = L.Control.extend({
     options: {
@@ -142,7 +147,7 @@ function initMap() {
     }
   });
 
-  let streamGraph = L.Control.extend({
+  let streamGraphControl = L.Control.extend({
     options: {
       position: 'bottomleft'
     },
@@ -180,7 +185,7 @@ function initMap() {
 
   let cIcon = new configIcon();
   let cBox = new configBox();
-  let streamOverlay = new streamGraph();
+  let streamOverlay = new streamGraphControl();
   let cPause = new pauseButton();
 
   smap.addControl(cIcon);
@@ -194,43 +199,23 @@ function initMap() {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(smap);
 
-  let queue = [];					// value array, initially set to zero
+  /////////////////////
+  //   StreamGraph   //
+  /////////////////////
 
-  //TODO: Fix keys
-  let stack = d3.stack()
-    .keys(["RF2449.188MHZ","RF101.719MHZ","RF2401.938MHZ","RF105MHZ","RF93.625MHZ"])
-    .order(d3.stackOrderNone)
-    .offset(d3.stackOffsetNone);
-
-  let series = stack(queue);
-  series.reverse();		// reverse for layering purposes
-
-  let width = 1650,
-    height = 150,
-    yScale = 500,		// available for easy adjusting
-    history = 10;		// number of entries in graph at once
-
-  // (if adjusting, also need to change d3.area)
-  let xStream = d3.scaleLinear()
-    .domain([0, (history - 1)])
-    .range([0, width]);
-
-  let yStream = d3.scaleLinear()
-    .domain([0, yScale])		// adjustable
-    .range([0, height]);
-
-  let area = d3.area()
-    .curve(d3.curveCatmullRom.alpha(0.5))
-    .x((d, i) => { return (i*(window.innerWidth + 150) / history); })	 // TODO: Fix width, 10 entries (history not accessible here)
-    .y0((d) => { return yStream(yScale - d[1]); })
-    .y1((d) => { return yStream(yScale); });
-
-  let svg = d3.select("#stream").append("svg").attr("width", "100vw").attr("height", height);
-
-  svg.selectAll("path")
-    .data(series)
-    .enter().append("path")
-    .attr("d", area);
+  let queue     = [],
+    width       = 1650,
+    height      = 150,
+    yScale      = 500,
+    history     = 10,
+    area        = d3.area()
+                       .curve(d3.curveCatmullRom.alpha(0.5))
+                       .x((d, i) => { return (i*(window.innerWidth + 178) / history); })
+                       .y0((d) => { return yStream(yScale - d[1]); })
+                       .y1((d) => { return yStream(yScale); }),
+    streamGraph = d3.select("#stream").append("svg"),
+    xStream     = d3.scaleLinear().domain([0, (history - 1)]).range([0, width]),
+    yStream     = d3.scaleLinear().domain([0, yScale]).range([0, height]);
 
   function updateStreamGraph(data) {
     let keys = data.map(i => { return i.name });
@@ -248,10 +233,19 @@ function initMap() {
       queue.push(data);
     }
 
-    let newSeries = stack(queue);
-    newSeries.reverse();
+    let stack = d3.stack()
+      .keys(keys)
+      .order(d3.stackOrderNone)
+      .offset(d3.stackOffsetNone);
 
-    svg.selectAll("path")
+    let newSeries = stack(queue).reverse();
+
+    streamGraph.selectAll("path")
+      .data(newSeries)
+      .enter().append("path")
+      .attr("d", area);
+
+    streamGraph.selectAll("path")
       .data(newSeries)
       .transition().attr("d", area).duration(100)
       .style("fill", d => { return color(d.key); });
