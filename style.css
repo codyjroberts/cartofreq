@@ -51,11 +51,11 @@ html, body, #map {
   width: 100vw;
 }
 
-#config, #pause, #locked {
+#config, #pause, #locked, #legend, #legend-icon {
   background: white;
   border: 2px solid rgba(0,0,0,0.2);
 }
 
-#config:hover, #pause:hover, #locked:hover{
+#config:hover, #pause:hover, #locked:hover, #legend-icon:hover {
   background: #f4f4f4;
 }

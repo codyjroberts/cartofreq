@@ -10,10 +10,13 @@
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.18.0/d3-legend.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   </head>
   <body>
      <div id="map"></div>
+
+     <svg id="legend"></svg>
 
      <button class="mdl-button mdl-js-button mdl-button--icon" id="config">
        <i class="material-icons">settings</i>
@@ -25,6 +28,10 @@
 
      <button class="mdl-button mdl-js-button mdl-button--icon" id="locked">
        <i class="material-icons">lock_outline</i>
+     </button>
+
+     <button class="mdl-button mdl-js-button mdl-button--icon" id="legend-icon">
+       <i class="material-icons">format_list_bulleted</i>
      </button>
 
      <div class="demo-card-wide mdl-card mdl-shadow--2dp" id="settings">

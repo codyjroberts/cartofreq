@@ -135,8 +135,23 @@ function initMap() {
                        .y0((d) => { return yStream(yScale - d[1]); })
                        .y1((d) => { return yStream(yScale); });
 
+  let legend = d3.select("#legend")
+
+  legend.append("g")
+    .attr("class", "legendOrdinal")
+    .attr("transform", "translate(20,20)");
+
+
   function updateStreamGraph(data) {
     let keys = data.map(i => { return i.name });
+
+    let legendOrdinal = d3.legendColor()
+      .shape("path", d3.symbol().type(d3.symbolCircle).size(150)())
+      .shapePadding(5)
+      .scale(color.domain(keys));
+
+    legend.select(".legendOrdinal")
+      .call(legendOrdinal);
 
     data = data.reduce((acc, x) => {
       acc[x.name] = Math.floor(Math.min(Math.max(2 * (parseFloat(x.size) + 115), 0), 100));
@@ -187,7 +202,7 @@ function initMap() {
       position: 'topright'
     },
 
-    onAdd: function (map) {
+    onAdd: (map) => {
       let container = L.DomUtil.get("config");
 
       function onClick(e) {
@@ -214,7 +229,7 @@ function initMap() {
       position: 'bottomleft'
     },
 
-    onAdd: function (map) {
+    onAdd: (map) => {
       let container = L.DomUtil.get("settings");
       container.style.display = 'none';
       return container;
@@ -226,7 +241,7 @@ function initMap() {
       position: 'bottomleft'
     },
 
-    onAdd: function (map) {
+    onAdd: (map) => {
       let container = L.DomUtil.get("stream");
       return container;
     }
@@ -234,10 +249,10 @@ function initMap() {
 
   let pauseButton = L.Control.extend({
     options: {
-      position: 'topleft'
+      position: 'topright'
     },
 
-    onAdd: function (map) {
+    onAdd: (map) => {
       let container = L.DomUtil.get('pause');
 
       container.style.width = '30px';
@@ -259,10 +274,10 @@ function initMap() {
 
   let lockButton = L.Control.extend({
     options: {
-      position: 'topleft'
+      position: 'topright'
     },
 
-    onAdd: function (map) {
+    onAdd: (map) => {
       let container = L.DomUtil.get('locked');
 
       container.style.width = '30px';
@@ -282,18 +297,58 @@ function initMap() {
     }
   });
 
+  let legendButton = L.Control.extend({
+    options: {
+      position: 'topright'
+    },
+
+    onAdd: (map) => {
+      let container = L.DomUtil.get('legend-icon');
+
+      container.style.width = '30px';
+      container.style.height = '30px';
+
+      L.DomEvent.addListener(container, 'click', e => {
+        let legend = document.getElementById('legend');
+
+        if (legend.style.display === 'none') {
+          legend.style.display = 'block';
+        } else {
+          legend.style.display = 'none';
+        }
+      });
+
+      return container;
+    }
+  });
+
+  let legendCtrl = L.Control.extend({
+    options: {
+      position: 'bottomleft'
+    },
+
+    onAdd: (map) => {
+      let container = L.DomUtil.get('legend');
+
+      container.style.width = '150px';
+      container.style.height = '125px';
+      return container;
+    }
+  });
 
   let cIcon = new configIcon();
   let cBox = new configBox();
   let cStream = new streamGraphControl();
   let cPause = new pauseButton();
   let cLock = new lockButton();
+  let cLegend = new legendCtrl();
+  let cLegendButton = new legendButton();
 
   smap.addControl(cIcon);
   smap.addControl(cBox);
   smap.addControl(cStream);
   smap.addControl(cPause);
   smap.addControl(cLock);
-
-  // Set TileLayer to B/W
+  smap.addControl(cLegend);
+  smap.addControl(cLegendButton);
 }
