@@ -1,33 +1,6 @@
 [
   {
     "name": "Sensor1",
-    "lat": "INT_LAT",
-    "lng": " INT_LON",
-    "children": [
-      {
-        "name": "RF2419.875MHZ",
-        "size": " RF2419.875MHZ"
-      },
-      {
-        "name": "RF2449.188MHZ",
-        "size": " RF2449.188MHZ"
-      },
-      {
-        "name": "RF2422.875MHZ",
-        "size": " RF2422.875MHZ"
-      },
-      {
-        "name": "RF2430.25MHZ",
-        "size": " RF2430.25MHZ "
-      },
-      {
-        "name": "RF105MHZ",
-        "size": " RF105MHZ"
-      }
-    ]
-  },
-  {
-    "name": "Sensor1",
     "lat": "41.8713644660119",
     "lng": " -87.6484761742445",
     "children": [
