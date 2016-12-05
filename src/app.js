@@ -24,6 +24,8 @@ function initMap() {
     historyMarkers = [],
     sensorNames    = [],
     paused         = false,
+    live           = true,
+    stream         = 0,
     locked         = true,
     markerSvg      = d3.select("#sensor")
                        .attr("width", markerWidth)
@@ -114,7 +116,7 @@ function initMap() {
     mark.bindTooltip(tooltip).openTooltip();
     historyMarkers.push(mark);
     mark.addTo(smap);
-    if (historyMarkers.length > 20) {
+    if (historyMarkers.length > 30) {
       let oldMark = historyMarkers.shift();
       smap.removeLayer(oldMark);
     }
@@ -130,7 +132,6 @@ function initMap() {
   /////////////////////
 
   let queue     = [],
-    width       = 1650,
     height      = 150,
     yScale      = 500,
     history     = 20,
@@ -149,6 +150,11 @@ function initMap() {
     .attr("class", "legendOrdinal")
     .attr("transform", "translate(20,20)");
 
+  function resize() {
+    xStream = d3.scaleLinear().domain([0, (history - 1)]).range([0, window.innerWidth]);
+  }
+
+  window.onresize = resize;
 
   function updateStreamGraph(data) {
     let keys = data.map(i => { return i.name });
@@ -196,11 +202,44 @@ function initMap() {
   //   Events   //
   ////////////////
   socket.on('t', data => {
-    if (data != null && !paused) {
+    if (data != null && !paused && live) {
       updateMarker(data);
       updateStreamGraph(data.children);
     }
   });
+
+  document.getElementById("data-source").onchange = function() {
+    clearInterval(stream);
+    if (this.value == "sensor") {
+      live = true;
+    }
+    else if (this.value.indexOf(".json") != -1) {
+      live = false;
+      startStream(this.value);
+    }
+  };
+
+  function startStream(filename) {
+    fetch(filename).then(function(response) {
+      let contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") != -1) {
+        return response.json().then(data => {
+          let i = 0;
+          stream = setInterval(() => {
+            if (!paused) {
+              updateMarker(data[i]);
+              updateStreamGraph(data[i].children);
+              i += 1;
+            }
+            if (i == data.length)
+              clearInterval(stream);
+          }, 100);
+        });
+      } else {
+        console.log("Oops, we haven't got JSON!");
+      }
+    });
+  }
 
   ////////////////////
   //   Map Config   //
