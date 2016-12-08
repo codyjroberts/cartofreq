@@ -134,15 +134,23 @@ function initMap() {
   let queue     = [],
     height      = 150,
     yScale      = 500,
-    history     = 20,
+    history     = 60,             // number of intervals
+    limit       = 600,            // go back (limt*duration) seconds
+    duration    = 100,            // how long until next interval in ms
+    now         = new Date(Date.now()),
     xStream     = d3.scaleLinear().domain([0, (history - 1)]).range([0, window.innerWidth]),
     yStream     = d3.scaleLinear().domain([0, yScale]).range([0, height]),
+    xTime       = d3.scaleTime().domain([now - limit, now]).range([0, window.innerWidth]),
     streamGraph = d3.select("#stream").append("svg"),
+    axis        = streamGraph.append('g').attr('class', 'x axis')
+                       .call(x.axis = d3.axisBottom(x)
+                            .ticks(20)
+                            .tickFormat(d3.timeFormat("%I:%M:%S"))),
     area        = d3.area()
                        .curve(d3.curveCatmullRom.alpha(0.5))
                        .x((d, i) => { return xStream(i); })
-                       .y0((d) => { return yStream(yScale - d[1]); })
-                       .y1((d) => { return yStream(yScale); });
+                       .y0((d)   => { return yStream(yScale - d[1]); })
+                       .y1((d)   => { return yStream(yScale); });
 
   let legend = d3.select("#legend")
 
@@ -198,6 +206,18 @@ function initMap() {
       .style("fill", d => { return color(d.key); });
   }
 
+  function tick() {
+    now = new Date(Date.now());
+
+    // Shift domain
+    x.domain([now - limit * duration, now])
+
+    // Slide x-axis left
+    axis.transition()
+          .duration(duration)
+          .call(x.axis)
+  }
+
   ////////////////
   //   Events   //
   ////////////////
@@ -205,6 +225,7 @@ function initMap() {
     if (data != null && !paused && live) {
       updateMarker(data);
       updateStreamGraph(data.children);
+      tick();
     }
   });
 
