@@ -17,7 +17,7 @@ function initMap() {
     padAngle       = .15,
     formatNumber   = d3.format(",d"),
     partition      = d3.partition(),
-    websocketURI   = 'ws://localhost:8080',
+    websocketURI   = 'ws://localhost:8088',
     socket         = io.connect(websocketURI),
     signalsTracked = 1,
     panOffset      = 0.0005,
