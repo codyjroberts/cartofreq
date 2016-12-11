@@ -1,10 +1,11 @@
 {
   "name": "CartoFreq",
-  "version": "1.0.0",
-  "description": "",
-  "main": "simulate.js",
+  "version": "0.1.0",
+  "description": "RF Receiver Visualizer",
+  "main": "src/app.js",
   "scripts": {
-    "dev": "bash start.sh",
+    "dev": "bash dev.sh",
+    "deps": "bash dependencies.sh",
     "build": "babel src -d lib"
   },
   "author": "Cody Roberts, Brian Hamilton, Mackenzie Carter",
