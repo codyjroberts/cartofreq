@@ -242,7 +242,6 @@ function initMap() {
       live = false;
       startStream(this.value);
     } else {
-      live = false;
       socket.emit('playback', this.value);
     }
   };
