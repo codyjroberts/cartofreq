@@ -11,7 +11,7 @@ function initMap() {
     radius         = (Math.min(markerWidth, markerHeight) / 2) - 10,
     x              = d3.scaleLinear().range([0, 2 * Math.PI]),
     y              = d3.scaleSqrt().range([0, radius]),
-    color          = d3.scaleOrdinal().range(["#FF2D00","#2E0927", "#FF8C00", "#04756F", "#D90000"]),
+    color          = d3.scaleOrdinal().range(["#FF2D00","#2E0927", "#FF8C00", "#04756F", "#D90000", "#FF6138", "#FFFF9D", "#BEEB9F", "#798D8F", "#00A388"]),
     maxDbm         = 115,
     cornerRadius   = 5,
     padAngle       = .15,
@@ -24,6 +24,7 @@ function initMap() {
     historyMarkers = [],
     sensorNames    = [],
     paused         = false,
+    recording      = false,
     live           = true,
     stream         = 0,
     locked         = true,
@@ -208,14 +209,41 @@ function initMap() {
     }
   });
 
+  socket.on('update_recordings', data => {
+    console.log(data["recordings"]);
+    updateRecordingList(data["recordings"]);
+  });
+
+  function updateRecordingList(data) {
+    let select = document.getElementById("data-source");
+
+    select.innerHTML = '';
+
+    let live = document.createElement('option');
+    live.text = "live";
+    select.add(live);
+
+    let campus3 = document.createElement('option');
+    campus3.text = "campus3.json";
+    select.add(campus3);
+
+    data.forEach(r => {
+      let option = document.createElement('option');
+      option.text = r["name"];
+      select.add(option);
+    })
+  }
+
   document.getElementById("data-source").onchange = function() {
     clearInterval(stream);
-    if (this.value == "sensor") {
+    if (this.value == "live") {
       live = true;
-    }
-    else if (this.value.indexOf(".json") != -1) {
+    } else if (this.value.indexOf(".json") != -1) {
       live = false;
       startStream(this.value);
+    } else {
+      live = false;
+      socket.emit('playback', this.value);
     }
   };
 
@@ -229,6 +257,7 @@ function initMap() {
             if (!paused) {
               updateMarker(data[i]);
               updateStreamGraph(data[i].children);
+              console.log(data[i].children);
               i += 1;
             }
             if (i == data.length)
@@ -244,44 +273,44 @@ function initMap() {
   ////////////////////
   //   Map Config   //
   ////////////////////
-  let configIcon = L.Control.extend({
-    options: {
-      position: 'topright'
-    },
+  //let configIcon = L.Control.extend({
+  //  options: {
+  //    position: 'topright'
+  //  },
 
-    onAdd: (map) => {
-      let container = L.DomUtil.get("config");
+  //  onAdd: (map) => {
+  //    let container = L.DomUtil.get("config");
 
-      function onClick(e) {
-        let settings = document.getElementById('settings');
-        let stream = document.getElementById('stream');
+  //    function onClick(e) {
+  //      let settings = document.getElementById('settings');
+  //      let stream = document.getElementById('stream');
 
-        if (settings.style.display === 'none') {
-          settings.style.display = 'block';
-          stream.style.display = 'none';
-        } else {
-          settings.style.display = 'none';
-          stream.style.display = 'block';
-        }
-      }
+  //      if (settings.style.display === 'none') {
+  //        settings.style.display = 'block';
+  //        stream.style.display = 'none';
+  //      } else {
+  //        settings.style.display = 'none';
+  //        stream.style.display = 'block';
+  //      }
+  //    }
 
-      L.DomEvent.addListener(container, 'click', onClick);
+  //    L.DomEvent.addListener(container, 'click', onClick);
 
-      return container;
-    }
-  });
+  //    return container;
+  //  }
+  //});
 
-  let configBox = L.Control.extend({
-    options: {
-      position: 'bottomleft'
-    },
+  //let configBox = L.Control.extend({
+  //  options: {
+  //    position: 'bottomleft'
+  //  },
 
-    onAdd: (map) => {
-      let container = L.DomUtil.get("settings");
-      container.style.display = 'none';
-      return container;
-    }
-  });
+  //  onAdd: (map) => {
+  //    let container = L.DomUtil.get("settings");
+  //    container.style.display = 'none';
+  //    return container;
+  //  }
+  //});
 
   let streamGraphControl = L.Control.extend({
     options: {
@@ -383,19 +412,64 @@ function initMap() {
     }
   });
 
-  let cIcon = new configIcon();
-  let cBox = new configBox();
+  let recordButton = L.Control.extend({
+    options: {
+      position: 'topright'
+    },
+
+    onAdd: (map) => {
+      let container = L.DomUtil.get('record');
+
+      container.style.width = '30px';
+      container.style.height = '30px';
+
+      L.DomEvent.addListener(container, 'click', e => {
+        if (recording) {
+          socket.emit('stop');
+          recording = false;
+          container.innerHTML = "<i class='material-icons' style='color:black'>fiber_manual_record</i>"
+        } else {
+          socket.emit('record');
+          recording = true;
+          container.innerHTML = "<i class='material-icons' style='color:red'>fiber_manual_record</i>"
+        }
+      });
+
+      return container;
+    }
+  });
+
+  let dataSource = L.Control.extend({
+    options: {
+      position: 'bottomleft'
+    },
+
+    onAdd: (map) => {
+      let container = L.DomUtil.get('source');
+
+      container.style.width = '150px';
+      container.style.height = '30px';
+      return container;
+    }
+  });
+
+  //let cIcon = new configIcon();
+  //let cBox = new configBox();
   let cStream = new streamGraphControl();
   let cPause = new pauseButton();
   let cLock = new lockButton();
   let cLegend = new legendCtrl();
   let cLegendButton = new legendButton();
+  let cRecordButton = new recordButton();
+  let cDataSource = new dataSource();
 
-  smap.addControl(cIcon);
-  smap.addControl(cBox);
+  //smap.addControl(cIcon);
+  //smap.addControl(cBox);
   smap.addControl(cStream);
   smap.addControl(cPause);
   smap.addControl(cLock);
   smap.addControl(cLegend);
   smap.addControl(cLegendButton);
+  smap.addControl(cRecordButton);
+  smap.addControl(cDataSource);
 }
