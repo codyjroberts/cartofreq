@@ -1,0 +1,1 @@
+{"name": "Sensor1","lat": "41.870484","lng": "-87.648857","children": [{"name": "5GHZ wifi","size": "-95.542"},{"name": "2.4GHZ wifi","size": "-91.581"},{"name": "FM Radio","size": "-94.096"},{"name": "AM Radio","size": "-95.7"},{"name": "Tv 1","size": "-92.172"},{"name": "Tv 2","size": "-90.248"}]}
