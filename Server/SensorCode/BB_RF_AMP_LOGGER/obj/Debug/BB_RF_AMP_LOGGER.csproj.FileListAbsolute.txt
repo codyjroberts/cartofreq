@@ -1,0 +1,24 @@
+C:\Users\admin\Documents\Visual Studio 2013\Projects\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.exe.config
+C:\Users\admin\Documents\Visual Studio 2013\Projects\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.exe
+C:\Users\admin\Documents\Visual Studio 2013\Projects\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.pdb
+C:\Users\admin\Documents\Visual Studio 2013\Projects\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.csprojResolveAssemblyReference.cache
+C:\Users\admin\Documents\Visual Studio 2013\Projects\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.exe
+C:\Users\admin\Documents\Visual Studio 2013\Projects\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.pdb
+C:\Users\RF\Documents\RF-Projects\RF_PROJECT_2016\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.exe.config
+C:\Users\RF\Documents\RF-Projects\RF_PROJECT_2016\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.exe
+C:\Users\RF\Documents\RF-Projects\RF_PROJECT_2016\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.pdb
+C:\Users\RF\Documents\RF-Projects\RF_PROJECT_2016\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.exe
+C:\Users\RF\Documents\RF-Projects\RF_PROJECT_2016\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.pdb
+C:\Users\RF\Documents\RF-Projects\RF_PROJECT_2016\BB_RF_AMP_LOGGER\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.csprojResolveAssemblyReference.cache
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.exe.config
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.exe
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.pdb
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.exe
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.pdb
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.csprojResolveAssemblyReference.cache
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\Broken sad\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.exe.config
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\Broken sad\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.exe
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\Broken sad\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.pdb
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\Broken sad\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.exe
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\Broken sad\BB_RF_AMP_LOGGER\bin\Debug\BB_RF_AMP_LOGGER.pdb
+C:\Users\RF\Desktop\DataVis BB_RF_AM - copy\Broken sad\BB_RF_AMP_LOGGER\obj\Debug\BB_RF_AMP_LOGGER.csprojResolveAssemblyReference.cache
