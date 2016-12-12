@@ -2,7 +2,7 @@
 CartoFreq is a tool for visualizing RF Receiver data in real-time. Built for the
 [Keysight N6841A RF Sensor](http://www.keysight.com/en/pdx-x201741-pn-N6841A/rf-sensor),
 CartoFreq enables the user to quickly see signal strength and visualize trends live as well as
-record and playback data for further review. To get an idea of what it does you can watch [this](#) video
+record and playback data for further review. To get an idea of what it does you can watch [this](https://youtu.be/6eF3Gtv_lU0) video
 where Mac Carter explains in more detail.
 
 # Getting Started
